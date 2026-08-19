@@ -101,6 +101,16 @@ com placa de vídeo dedicada, esses tempos caem para uma fração.
 
 O melhor uso é começar e ir fazer outra coisa — não é para ficar olhando.
 
+## A passagem bíblica
+
+O campo **Passagem bíblica** na tela é opcional, mas vale preencher.
+
+Nos testes, o modelo trocou a referência mesmo com o pregador anunciando
+"Filipenses capítulo 4 versículo 6 e 7" com todas as letras — devolveu
+1 Pedro 5:7, que fala do mesmo assunto e passaria despercebido numa revisão
+rápida. O `PROMPT_SISTEMA` foi endurecido e passou a acertar, mas modelo de
+linguagem não dá garantia: o que você digitar sobrescreve o palpite dele.
+
 ## Como a pregação é lida
 
 O modelo enxerga 4096 tokens por vez — cerca de 20 minutos de fala. Uma
@@ -238,8 +248,6 @@ pregacao-pdf/
 
 ## Ideias pra depois
 
-- Campo manual de passagem bíblica, pra garantir precisão em vez de deixar a IA
-  inferir do contexto
 - Logo da igreja no cabeçalho do PDF (o `LOGO_PATH` já existe no config, mas o
   template ainda não usa)
 - Salvar os PDFs direto numa pasta compartilhada do Drive

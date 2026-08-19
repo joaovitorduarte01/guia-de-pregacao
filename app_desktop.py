@@ -83,6 +83,7 @@ class Aplicativo(tk.Tk):
         self.caminho_audio = tk.StringVar()
         self.rotulo_audio = tk.StringVar(value="Nenhum arquivo escolhido")
         self.pregador = tk.StringVar()
+        self.passagem = tk.StringVar()
         self.hoje = date.today()
         self.dia = tk.StringVar(value=str(self.hoje.day))
         self.mes = tk.StringVar(value=MESES[self.hoje.month - 1])
@@ -158,8 +159,18 @@ class Aplicativo(tk.Tk):
         ttk.Entry(interno, textvariable=self.pregador, style="Campo.TEntry",
                   font=(tema.FONTE, 10)).pack(fill="x", pady=(0, 20))
 
-        # ---- passo 3: data
-        self._titulo_passo(interno, "3", "Data da pregação")
+        # ---- passo 3: passagem bíblica
+        self._titulo_passo(interno, "3", "Passagem bíblica")
+        tk.Label(interno, bg=tema.CARTAO, fg=tema.TEXTO_FRACO, anchor="w",
+                 font=(tema.FONTE, 8), justify="left",
+                 text="Opcional, mas recomendado. A IA às vezes troca a referência "
+                      "por outro versículo do mesmo tema.",
+                 ).pack(fill="x", pady=(0, 4))
+        ttk.Entry(interno, textvariable=self.passagem, style="Campo.TEntry",
+                  font=(tema.FONTE, 10)).pack(fill="x", pady=(0, 20))
+
+        # ---- passo 4: data
+        self._titulo_passo(interno, "4", "Data da pregação")
         linha_data = tk.Frame(interno, bg=tema.CARTAO)
         linha_data.pack(anchor="w", pady=(0, 4))
         ttk.Spinbox(linha_data, from_=1, to=31, width=4, textvariable=self.dia,
@@ -298,13 +309,14 @@ class Aplicativo(tk.Tk):
 
         threading.Thread(
             target=self._pipeline,
-            args=(audio, self.pregador.get().strip(), data),
+            args=(audio, self.pregador.get().strip(), data,
+                  self.passagem.get().strip()),
             daemon=True,
         ).start()
 
     # --------------------------------------------------- trabalho pesado
 
-    def _pipeline(self, audio, pregador, data):
+    def _pipeline(self, audio, pregador, data, passagem=""):
         """Roda numa thread separada. Só fala com a interface pela fila."""
         try:
             # imports aqui dentro: carregar o faster-whisper demora alguns
@@ -337,7 +349,7 @@ class Aplicativo(tk.Tk):
                 self.fila.put(("status", (68 + fracao * 22, descricao)))
 
             dados = gerar_guia(texto, pregador=pregador, data=formatar_data(data),
-                               progresso=progresso_ia)
+                               progresso=progresso_ia, passagem=passagem)
 
             self.fila.put(("status", (90, "Montando o PDF...")))
             pasta = pasta_de_saida()

@@ -44,14 +44,10 @@ estrutura em JSON (responda SOMENTE o JSON, sem markdown, sem texto antes ou dep
   "passagem_biblica": "ex: Lucas 21:34-36",
   "resumo_mensagem": "um parágrafo (6 a 10 frases) resumindo a mensagem central da pregação",
   "pontos_aplicacao": [
-    {"titulo": "título curto do ponto", "texto": "parágrafo explicando o ponto e como aplicar na vida/família"},
-    {"titulo": "...", "texto": "..."},
-    {"titulo": "...", "texto": "..."}
+    {"titulo": "título curto do ponto", "texto": "parágrafo explicando o ponto e como aplicar na vida/família"}
   ],
   "perguntas_discussao": [
-    "pergunta 1 para reflexão em família",
-    "pergunta 2",
-    "pergunta 3"
+    "uma pergunta para reflexão em família, escrita por extenso"
   ],
   "oracao_final": "um parágrafo de oração relacionado ao tema, em primeira pessoa do plural (nós)",
   "hino_sugerido": {
@@ -63,8 +59,16 @@ estrutura em JSON (responda SOMENTE o JSON, sem markdown, sem texto antes ou dep
 
 Regras importantes:
 - Use APENAS o conteúdo da transcrição como base. Não invente doutrina nem versículos que não foram citados.
-- Se a transcrição não deixar claro algum campo (ex: passagem bíblica exata), faça sua melhor inferência a partir do contexto.
-- Sempre gere exatamente 3 pontos de aplicação e 3 perguntas de discussão.
+- PASSAGEM BÍBLICA: copie a referência EXATAMENTE como o pregador a anunciou na
+  transcrição, mesmo que ele diga por extenso ("Filipenses capítulo 4 versículo
+  6 e 7" vira "Filipenses 4:6-7"). NÃO troque por outro versículo que combine
+  com o tema — este é o erro mais comum e o mais grave, porque a referência sai
+  impressa no cabeçalho do guia. Se o pregador não anunciar nenhuma passagem,
+  deixe o campo como null.
+- Os arrays acima mostram UM item de exemplo cada. Gere exatamente 3 pontos de
+  aplicação e 3 perguntas, todos preenchidos com conteúdo real — nunca repita o
+  texto de exemplo nem escreva reticências.
+- Escreva as perguntas por extenso, sem numerar ("Pergunta 1:" está errado).
 - Escreva em tom pastoral, caloroso e aplicável à vida real da família.
 """
 
@@ -146,7 +150,8 @@ def fatiar(transcricao: str, tokens_por_fatia: int = None) -> list:
     return [f for f in fatias if f]
 
 
-def gerar_guia(transcricao: str, pregador: str, data: str, progresso=None) -> dict:
+def gerar_guia(transcricao: str, pregador: str, data: str, progresso=None,
+               passagem: str = None) -> dict:
     """
     Chama o Ollama local e devolve um dicionário já estruturado, pronto para o
     template do PDF.
@@ -193,6 +198,13 @@ def gerar_guia(transcricao: str, pregador: str, data: str, progresso=None) -> di
     dados = _extrair_json(conteudo)
     dados["pregador"] = pregador
     dados["data"] = data
+
+    # Passagem digitada à mão manda. Os modelos erram muito este campo: mesmo
+    # com a referência dita com todas as letras na transcrição, trocam por
+    # outro versículo do mesmo tema — e ela vai impressa no cabeçalho do guia.
+    if passagem and passagem.strip():
+        dados["passagem_biblica"] = passagem.strip()
+
     return dados
 
 
