@@ -1,0 +1,17 @@
+# Empacotamento — o app pronto é distribuído como Release, não versionado aqui
+build/
+dist/
+*.spec
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Saídas locais
+pdfs/*.pdf
+audios/*
+
+# Não versionar a configuração pessoal da máquina
+configuracao.json

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+    /* Da segunda página em diante sobra uma margem no topo, senão o texto
+       encosta na borda do papel e a impressora corta. A primeira página fica
+       sem margem porque a faixa azul do cabeçalho tem que sangrar até a beirada. */
+    @page {
+        size: A4;
+        margin: 14mm 0 0 0;
+    }
+    @page :first {
+        margin-top: 0;
+    }
+
+    /* Navegador não imprime cor de fundo por padrão — sem isto o cabeçalho e as
+       caixas de destaque sairiam brancos quando o PDF é gerado pelo Edge.
+       O weasyprint ignora esta regra, então não atrapalha o outro motor. */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #23262B;
+        margin: 0;
+        font-size: 10.5pt;
+        line-height: 1.5;
+    }
+
+    /* ---------------------------------------------------------- cabeçalho */
+
+    .cabecalho {
+        background: {{ cor_primaria }};
+        color: #ffffff;
+        padding: 26px 38px 22px 38px;
+    }
+    .cabecalho .nome-igreja {
+        font-size: 9.5pt;
+        font-weight: 600;
+        letter-spacing: 2.4px;
+        text-transform: uppercase;
+        color: {{ cor_destaque }};
+    }
+    .cabecalho .selo {
+        font-size: 7.5pt;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        opacity: 0.72;
+        margin-top: 12px;
+    }
+    .cabecalho .tema {
+        font-size: 21pt;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 3px 0 12px 0;
+    }
+    .cabecalho .meta {
+        font-size: 9pt;
+        opacity: 0.9;
+        border-top: 1px solid rgba(255, 255, 255, 0.22);
+        padding-top: 10px;
+    }
+    .cabecalho .meta strong {
+        font-weight: 600;
+    }
+    /* filete dourado separando o cabeçalho do conteúdo */
+    .filete {
+        height: 4px;
+        background: {{ cor_destaque }};
+    }
+
+    /* ------------------------------------------------------------ conteúdo */
+
+    .conteudo {
+        padding: 26px 38px 0 38px;
+    }
+
+    .secao-titulo {
+        font-size: 10.5pt;
+        font-weight: 700;
+        color: {{ cor_primaria }};
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin: 26px 0 12px 0;
+        /* nunca deixa um título sozinho no fim da página */
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+    .secao-titulo:first-child {
+        margin-top: 0;
+    }
+    .secao-titulo::after {
+        content: "";
+        display: block;
+        width: 42px;
+        height: 2px;
+        background: {{ cor_destaque }};
+        margin-top: 5px;
+    }
+
+    /* mantém título e conteúdo juntos: título sozinho no pé da página fica feio */
+    .bloco {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        /* a margem do título colapsa com a do .bloco e a seção ficaria mais
+           colada que as outras — a margem passa a viver aqui */
+        margin-top: 26px;
+    }
+    .bloco .secao-titulo {
+        margin-top: 0;
+    }
+
+    .resumo {
+        text-align: justify;
+        hyphens: auto;
+    }
+
+    /* ---- pontos de aplicação */
+
+    .ponto {
+        background: {{ cor_secundaria }};
+        padding: 13px 16px 13px 15px;
+        margin-bottom: 9px;
+        border-left: 3px solid {{ cor_primaria }};
+        /* uma caixa cortada no meio pela quebra de página fica ilegível */
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .ponto .titulo-ponto {
+        font-weight: 700;
+        color: {{ cor_primaria }};
+        margin-bottom: 3px;
+        font-size: 10.5pt;
+    }
+    .ponto .numero {
+        display: inline-block;
+        background: {{ cor_destaque }};
+        color: #ffffff;
+        width: 17px;
+        height: 17px;
+        line-height: 17px;
+        text-align: center;
+        border-radius: 9px;
+        font-size: 8pt;
+        font-weight: 700;
+        margin-right: 7px;
+    }
+    .ponto .texto-ponto {
+        text-align: justify;
+        hyphens: auto;
+    }
+
+    /* ---- perguntas */
+
+    ol.perguntas {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+        counter-reset: pergunta;
+    }
+    ol.perguntas li {
+        counter-increment: pergunta;
+        position: relative;
+        padding-left: 26px;
+        margin-bottom: 9px;
+        text-align: justify;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    ol.perguntas li::before {
+        content: counter(pergunta) ".";
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: {{ cor_destaque }};
+        font-weight: 700;
+    }
+
+    /* ---- oração */
+
+    .oracao {
+        font-style: italic;
+        text-align: justify;
+        color: #33373D;
+        background: {{ cor_secundaria }};
+        border-left: 3px solid {{ cor_destaque }};
+        padding: 14px 18px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* ---- hino */
+
+    .hino {
+        text-align: justify;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .hino .titulo-hino {
+        font-weight: 700;
+        color: {{ cor_primaria }};
+    }
+
+    /* ------------------------------------------------------------- rodapé */
+
+    /* Rodapé em fluxo, fechando o documento. Foi tentado com position: fixed
+       para repetir em todas as páginas — funciona no weasyprint, mas o
+       Chrome/Edge não repete elemento fixo na impressão: ele solta o rodapé
+       no topo da segunda página e ainda empurra o conteúdo pra fora. */
+    .rodape {
+        margin-top: 30px;
+        background: {{ cor_primaria }};
+        color: #ffffff;
+        font-size: 8pt;
+        padding: 14px 38px;
+        text-align: center;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .rodape .lema {
+        color: {{ cor_destaque }};
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        font-size: 7pt;
+        margin-bottom: 3px;
+    }
+    .rodape .contatos {
+        opacity: 0.86;
+    }
+</style>
+</head>
+<body>
+
+    <div class="cabecalho">
+        <div class="nome-igreja">{{ nome_igreja }}</div>
+        <div class="selo">Guia de Estudo em Família</div>
+        <div class="tema">{{ tema }}</div>
+        <div class="meta">
+            <strong>{{ passagem_biblica }}</strong> &nbsp;·&nbsp; {{ data }} &nbsp;·&nbsp; {{ pregador }}
+        </div>
+    </div>
+    <div class="filete"></div>
+
+    <div class="conteudo">
+
+        <div class="secao-titulo">Resumo da Mensagem</div>
+        <div class="resumo">{{ resumo_mensagem }}</div>
+
+        <div class="secao-titulo">Pontos de Aplicação Familiar</div>
+        {% for ponto in pontos_aplicacao %}
+        <div class="ponto">
+            <div class="titulo-ponto"><span class="numero">{{ loop.index }}</span>{{ ponto.titulo }}</div>
+            <div class="texto-ponto">{{ ponto.texto }}</div>
+        </div>
+        {% endfor %}
+
+        <div class="secao-titulo">Perguntas para Discussão em Família</div>
+        <ol class="perguntas">
+            {% for pergunta in perguntas_discussao %}
+            <li>{{ pergunta }}</li>
+            {% endfor %}
+        </ol>
+
+        <div class="bloco">
+            <div class="secao-titulo">Oração Final</div>
+            <div class="oracao">{{ oracao_final }}</div>
+        </div>
+
+        {% if hino_sugerido and hino_sugerido.titulo %}
+        <div class="bloco">
+        <div class="secao-titulo">Hino Sugerido — Harpa Cristã</div>
+        <div class="hino">
+            <span class="titulo-hino">{% if hino_sugerido.numero %}Hino {{ hino_sugerido.numero }} — {% endif %}“{{ hino_sugerido.titulo }}”</span>
+            — {{ hino_sugerido.comentario }}
+        </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <div class="rodape">
+        {% if lema %}<div class="lema">{{ lema }}</div>{% endif %}
+        <div class="contatos">
+            {{ nome_igreja }}{% if instagram %} &nbsp;·&nbsp; {{ instagram }}{% endif %}{% if youtube %} &nbsp;·&nbsp; {{ youtube }}{% endif %}
+        </div>
+    </div>
+
+</body>
+</html>
