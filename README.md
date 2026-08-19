@@ -118,6 +118,17 @@ Põe o atalho, com ícone, na Área de Trabalho **e** no Menu Iniciar (aí ele
 aparece na busca do Windows). Funciona antes do build também: nesse caso o
 atalho chama o código-fonte pelo `pythonw.exe`, sem janela preta de terminal.
 
+### Manual de instalação em PDF
+
+```bash
+python gerar_manual.py
+```
+
+Gera `pdfs/Como-instalar-o-Guia-de-Pregacao.pdf` — duas páginas, com o passo a
+passo para quem vai instalar em outro computador. Sai com as cores da igreja,
+igual ao guia da pregação. O link de download fica em `URL_DOWNLOAD`, no topo
+do script.
+
 ### Trocar o ícone
 
 ```bash
@@ -190,6 +201,7 @@ pregacao-pdf/
 ├── build_exe.py       → empacota o aplicativo
 ├── criar_atalho.py    → põe o atalho na Área de Trabalho e no Menu Iniciar
 ├── fazer_icone.py     → desenha o ícone a partir das cores do config
+├── gerar_manual.py    → PDF com o passo a passo de instalação
 ├── templates/guia.html→ o desenho do PDF (pode editar o HTML/CSS)
 ├── audios/            → coloque os áudios aqui
 └── pdfs/              → saída dos testes por linha de comando

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: A4;
+        margin: 16mm 0 14mm 0;
+    }
+    @page :first {
+        margin-top: 0;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #23262B;
+        margin: 0;
+        font-size: 11pt;
+        line-height: 1.55;
+    }
+
+    .capa {
+        background: {{ cor_primaria }};
+        color: #ffffff;
+        padding: 30px 40px 26px 40px;
+    }
+    .capa .igreja {
+        font-size: 9.5pt;
+        letter-spacing: 2.4px;
+        text-transform: uppercase;
+        color: {{ cor_destaque }};
+        font-weight: 600;
+    }
+    .capa h1 {
+        font-size: 24pt;
+        margin: 8px 0 6px 0;
+        line-height: 1.15;
+    }
+    .capa .sub {
+        font-size: 10.5pt;
+        opacity: 0.88;
+    }
+    .filete { height: 4px; background: {{ cor_destaque }}; }
+
+    .conteudo { padding: 0 40px; }
+
+    .intro {
+        margin: 24px 0 4px 0;
+    }
+
+    h2 {
+        font-size: 11pt;
+        color: {{ cor_primaria }};
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin: 28px 0 12px 0;
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+    h2::after {
+        content: "";
+        display: block;
+        width: 40px;
+        height: 2px;
+        background: {{ cor_destaque }};
+        margin-top: 5px;
+    }
+
+    /* ---- passos */
+
+    .passo {
+        display: block;
+        margin-bottom: 16px;
+        padding-left: 46px;
+        position: relative;
+        min-height: 34px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .passo .n {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        border-radius: 16px;
+        background: {{ cor_primaria }};
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 12pt;
+    }
+    .passo .titulo {
+        font-weight: 700;
+        color: {{ cor_primaria }};
+        font-size: 11.5pt;
+        padding-top: 4px;
+        margin-bottom: 2px;
+    }
+    .passo .texto { text-align: left; }
+
+    code, .caminho {
+        font-family: Consolas, 'Courier New', monospace;
+        background: {{ cor_secundaria }};
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-size: 9.5pt;
+        word-break: break-all;
+    }
+
+    .link {
+        display: block;
+        background: {{ cor_secundaria }};
+        border-left: 3px solid {{ cor_destaque }};
+        padding: 10px 14px;
+        margin: 8px 0;
+        font-family: Consolas, 'Courier New', monospace;
+        font-size: 9.5pt;
+        word-break: break-all;
+    }
+
+    /* ---- avisos */
+
+    .aviso {
+        background: #FFF6E6;
+        border-left: 3px solid #E0A83C;
+        padding: 13px 16px;
+        margin: 12px 0;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .aviso .cabeca {
+        font-weight: 700;
+        color: #7A4B00;
+        margin-bottom: 3px;
+    }
+    .aviso p { margin: 0; }
+
+    .nota {
+        background: {{ cor_secundaria }};
+        border-left: 3px solid {{ cor_primaria }};
+        padding: 13px 16px;
+        margin: 12px 0;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .nota p { margin: 0; }
+
+    /* ---- tabela de problemas */
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10pt;
+        margin-top: 4px;
+    }
+    th {
+        background: {{ cor_primaria }};
+        color: #ffffff;
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 9.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+    td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #E4E1DC;
+        vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #FAFAF8; }
+
+    .rodape {
+        /* margem e respiro contidos de propósito: sobram 65pt no pé da última
+           página e o rodapé ocupa 54pt — com folga maior ele não cabia e o PDF
+           ganhava uma terceira página contendo só ele */
+        margin-top: 8px;
+        background: {{ cor_primaria }};
+        color: #ffffff;
+        padding: 11px 40px;
+        text-align: center;
+        font-size: 8.5pt;
+        break-inside: avoid;
+    }
+    .rodape .lema {
+        color: {{ cor_destaque }};
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        font-size: 7.5pt;
+        margin-bottom: 3px;
+    }
+</style>
+</head>
+<body>
+
+    <div class="capa">
+        <div class="igreja">{{ nome_igreja }}</div>
+        <h1>Como instalar o Guia de Pregação</h1>
+        <div class="sub">Passo a passo para instalar em outro computador</div>
+    </div>
+    <div class="filete"></div>
+
+    <div class="conteudo">
+
+        <p class="intro">
+            Este programa transforma o áudio de uma pregação em um guia de estudo
+            em família, pronto para imprimir. Ele funciona <strong>inteiramente
+            dentro do computador</strong> — nenhum áudio ou texto é enviado para
+            a internet, e não há mensalidade nem limite de uso.
+        </p>
+
+        <h2>Antes de começar</h2>
+        <p>O computador precisa de:</p>
+        <ul>
+            <li><strong>Windows 10 ou 11</strong></li>
+            <li><strong>6 GB livres</strong> no disco</li>
+            <li><strong>Internet</strong> — só na primeira vez. Depois funciona sem.</li>
+            <li><strong>8 GB de memória (RAM)</strong> ou mais. Funciona com menos, mas fica lento.</li>
+        </ul>
+
+        <h2>Instalação</h2>
+
+        <div class="passo">
+            <div class="n">1</div>
+            <div class="titulo">Baixar o programa</div>
+            <div class="texto">
+                Abra este endereço no navegador e clique no arquivo
+                <code>{{ nome_arquivo }}</code>:
+                <span class="link">{{ url_download }}</span>
+                O download tem cerca de {{ tamanho_mb }} MB.
+            </div>
+        </div>
+
+        <div class="passo">
+            <div class="n">2</div>
+            <div class="titulo">Extrair o arquivo</div>
+            <div class="texto">
+                Clique com o <strong>botão direito</strong> no arquivo baixado e
+                escolha <strong>Extrair tudo…</strong>, depois <strong>Extrair</strong>.
+                Vai aparecer uma pasta chamada <code>Guia de Pregacao</code>.
+            </div>
+        </div>
+
+        <div class="passo">
+            <div class="n">3</div>
+            <div class="titulo">Abrir o programa</div>
+            <div class="texto">
+                Entre na pasta e dê dois cliques em
+                <code>Guia de Pregacao.exe</code>.
+            </div>
+        </div>
+
+        <div class="aviso">
+            <div class="cabeca">O Windows vai mostrar um aviso azul — é normal</div>
+            <p>
+                Vai aparecer <strong>“O Windows protegeu o seu PC”</strong>. Isso
+                acontece com todo programa que não vem de uma empresa registrada,
+                e <strong>não quer dizer que tem vírus</strong>.
+                Clique em <strong>Mais informações</strong> e depois no botão
+                <strong>Executar assim mesmo</strong>.
+            </p>
+        </div>
+
+        <div class="passo">
+            <div class="n">4</div>
+            <div class="titulo">Preparar (só na primeira vez)</div>
+            <div class="texto">
+                Na primeira abertura aparece a tela <strong>“Falta preparar o
+                programa”</strong>. Clique em <strong>Baixar e preparar</strong>
+                e deixe o computador ligado. São cerca de 3 GB e pode levar de 15
+                a 40 minutos, dependendo da internet. Só se faz uma vez.
+            </div>
+        </div>
+
+        <div class="passo">
+            <div class="n">5</div>
+            <div class="titulo">Colocar o atalho na Área de Trabalho</div>
+            <div class="texto">
+                Clique com o botão direito no <code>Guia de Pregacao.exe</code> e
+                escolha <strong>Mostrar mais opções → Enviar para → Área de
+                trabalho</strong>. Assim não precisa procurar a pasta toda vez.
+            </div>
+        </div>
+
+        <div class="nota">
+            <p>
+                <strong>Não apague nem mova a pasta depois de criar o atalho.</strong>
+                O atalho aponta para lá dentro; se a pasta mudar de lugar, ele
+                para de funcionar. Se precisar mover, mova primeiro e crie o
+                atalho depois.
+            </p>
+        </div>
+
+        <h2>Usando o programa</h2>
+
+        <div class="passo">
+            <div class="n">6</div>
+            <div class="titulo">Colocar o nome e as cores da igreja</div>
+            <div class="texto">
+                Clique em <strong>⚙ Configurações</strong>, no canto superior
+                direito. Preencha o nome da igreja, o lema e as redes sociais.
+                Isso aparece no PDF e é feito uma vez só.
+            </div>
+        </div>
+
+        <div class="passo">
+            <div class="n">7</div>
+            <div class="titulo">Gerar o primeiro guia</div>
+            <div class="texto">
+                Grave a pregação no celular e passe o arquivo para o computador.
+                No programa: escolha o áudio, escreva quem pregou, confira a data
+                e clique em <strong>Gerar o guia em PDF</strong>.
+                Uma pregação de 50 minutos leva de 5 a 15 minutos para ficar pronta.
+                O PDF é salvo em <span class="caminho">Documentos\Guias de Pregação</span>.
+            </div>
+        </div>
+
+        <div class="aviso">
+            <div class="cabeca">Confira o guia antes de imprimir</div>
+            <p>
+                O texto é escrito por um programa de inteligência artificial a
+                partir do que foi falado. Ele acerta na maior parte das vezes, mas
+                pode entender errado uma palavra ou uma referência bíblica.
+                <strong>Leia antes de entregar às famílias.</strong>
+            </p>
+        </div>
+
+        <h2>Se algo der errado</h2>
+        <table>
+            <tr>
+                <th style="width: 38%">O que aconteceu</th>
+                <th>O que fazer</th>
+            </tr>
+            <tr>
+                <td>“O Windows protegeu o seu PC”</td>
+                <td>Mais informações → Executar assim mesmo. É esperado.</td>
+            </tr>
+            <tr>
+                <td>“Não consegui falar com o Ollama”</td>
+                <td>Feche e abra o programa. Se continuar, clique em Preparar agora e deixe terminar o download.</td>
+            </tr>
+            <tr>
+                <td>O computador travou durante o processo</td>
+                <td>Feche o navegador e outros programas antes de gerar. Os modelos usam bastante memória.</td>
+            </tr>
+            <tr>
+                <td>A transcrição saiu com muitos erros</td>
+                <td>Grave com o celular mais perto de quem prega. Ruído de fundo e eco atrapalham bastante.</td>
+            </tr>
+            <tr>
+                <td>Demorou muito mais que o esperado</td>
+                <td>Normal em computador antigo. Deixe rodando em segundo plano e vá fazer outra coisa.</td>
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="rodape">
+        {% if lema %}<div class="lema">{{ lema }}</div>{% endif %}
+        <div>{{ nome_igreja }}{% if instagram %} &nbsp;·&nbsp; {{ instagram }}{% endif %}</div>
+    </div>
+
+</body>
+</html>
