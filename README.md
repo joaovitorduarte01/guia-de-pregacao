@@ -24,13 +24,6 @@ há custo por uso — nem API paga, nem assinatura, nem limite.
   app_desktop.py      → a janela que a pessoa usa
 ```
 
-## Duas interfaces
-
-| | quando usar |
-|---|---|
-| **`app_desktop.py`** | O normal. Janela nativa, duplo clique, sem terminal. |
-| `app.py` | Interface no navegador (Streamlit). Serve pra deixar um PC da igreja rodando e todo mundo acessar pelo celular na mesma rede. |
-
 ## Instalação
 
 ### Usando o executável
@@ -178,6 +171,7 @@ Ficam registradas aqui pra ninguém perder tempo de novo:
 python transcrever.py audios/exemplo.mp3   # só a transcrição
 python gerar_pdf.py                        # só o PDF, com dados de exemplo
 python gerar_conteudo.py                   # só a IA (precisa do Ollama de pé)
+python instalador.py                       # o que está pronto e o que falta
 ```
 
 ## Estrutura
@@ -185,7 +179,6 @@ python gerar_conteudo.py                   # só a IA (precisa do Ollama de pé)
 ```
 pregacao-pdf/
 ├── app_desktop.py     → aplicativo desktop (tkinter)
-├── app.py             → interface web alternativa (Streamlit)
 ├── tema.py            → paleta e estilos do app, derivados de COR_PRIMARIA
 ├── instalador.py      → detecta e baixa o que falta (Ollama, modelos)
 ├── tela_preparo.py    → tela de primeira execução

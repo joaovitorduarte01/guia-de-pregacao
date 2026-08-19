@@ -1,5 +1,13 @@
-streamlit
-faster-whisper
-weasyprint
-jinja2
-requests
+# Necessário para o aplicativo funcionar
+faster-whisper      # transcrição do áudio, roda local
+jinja2              # monta o HTML do guia a partir do template
+requests            # conversa com o Ollama e baixa o que falta na primeira vez
+pillow              # só para o fazer_icone.py desenhar o ícone
+
+# A interface é tkinter, que já vem com o Python — não precisa instalar.
+# O PDF é gerado pelo Microsoft Edge, que já vem com o Windows.
+
+# Opcionais, instale só se precisar:
+#   weasyprint    motor de PDF alternativo (exige GTK à parte no Windows;
+#                 é o padrão no Linux e no Mac)
+#   pyinstaller   para gerar o executável com o build_exe.py

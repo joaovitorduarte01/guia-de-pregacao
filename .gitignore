@@ -12,6 +12,7 @@ venv/
 # Saídas locais
 pdfs/*.pdf
 audios/*
+!audios/.gitkeep
 
 # Não versionar a configuração pessoal da máquina
 configuracao.json
