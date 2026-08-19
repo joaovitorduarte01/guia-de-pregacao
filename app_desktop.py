@@ -15,7 +15,7 @@ import subprocess
 import sys
 import threading
 import traceback
-from datetime import date
+from datetime import date, datetime
 
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
@@ -323,8 +323,21 @@ class Aplicativo(tk.Tk):
             texto = transcrever_audio(audio, progresso_callback=progresso)
             self.fila.put(("transcricao", texto))
 
-            self.fila.put(("status", (68, "Organizando o conteúdo com a IA...")))
-            dados = gerar_guia(texto, pregador=pregador, data=formatar_data(data))
+            # A transcrição levou minutos; nesse meio tempo o motor de IA pode
+            # ter sido desligado, ou nunca ter subido. Garante antes de chamar,
+            # senão a pessoa perde todo o trabalho da transcrição por causa
+            # de um serviço parado.
+            import instalador
+            if not instalador.servidor_no_ar():
+                self.fila.put(("status", (66, "Ligando o motor de IA...")))
+                instalador.iniciar_servidor(lambda *_: None)
+
+            # a IA ocupa a faixa de 68% a 90% da barra
+            def progresso_ia(fracao, descricao):
+                self.fila.put(("status", (68 + fracao * 22, descricao)))
+
+            dados = gerar_guia(texto, pregador=pregador, data=formatar_data(data),
+                               progresso=progresso_ia)
 
             self.fila.put(("status", (90, "Montando o PDF...")))
             pasta = pasta_de_saida()
@@ -416,23 +429,53 @@ class Aplicativo(tk.Tk):
         ttk.Button(botoes, text="Ver transcrição", style="Secundario.TButton",
                    command=self._mostrar_transcricao).pack(side="left")
 
+    def _registrar_erro(self, detalhe: str) -> str:
+        """
+        Grava o traceback num arquivo. Empacotado com --windowed não existe
+        stderr, então sem isto o erro real morre com a janela e não há como
+        alguém descobrir o que aconteceu.
+        """
+        caminho = os.path.join(os.path.dirname(config.caminho_ajustes()), "erros.log")
+        try:
+            os.makedirs(os.path.dirname(caminho), exist_ok=True)
+            with open(caminho, "a", encoding="utf-8") as f:
+                f.write(f"\n{'=' * 70}\n{datetime.now():%d/%m/%Y %H:%M:%S}\n{detalhe}")
+        except OSError:
+            return ""
+        return caminho
+
     def _falhar(self, erro, detalhe):
         self.trabalhando = False
         self.botao.habilitar(True, "Gerar o guia em PDF")
         self.barra["value"] = 0
 
-        texto = str(erro)
-        if "Connection" in texto or "connect" in texto.lower():
-            amigavel = ("Não consegui falar com o Ollama.\n\n"
-                        "Ele é o motor de IA que organiza a pregação e precisa estar "
-                        "rodando. Instale em ollama.com/download e depois rode no "
-                        f"Prompt de Comando:\n\n    ollama pull {config.OLLAMA_MODEL}")
+        registro = self._registrar_erro(detalhe)
+
+        # Checa o TIPO da exceção, não o texto dela. Antes isto procurava
+        # "connect" na mensagem e classificava como problema de conexão
+        # qualquer erro que por acaso tivesse essa palavra — mostrando à pessoa
+        # uma causa errada e escondendo a de verdade.
+        import requests.exceptions as re_exc
+        sem_conexao = isinstance(erro, (re_exc.ConnectionError, ConnectionError))
+        demorou = isinstance(erro, (re_exc.Timeout, TimeoutError))
+
+        if sem_conexao:
+            amigavel = ("O motor de IA não respondeu.\n\n"
+                        "Feche e abra o programa — ele liga o motor sozinho. "
+                        "Se continuar, use o botão Preparar agora na tela inicial.")
+        elif demorou:
+            amigavel = ("A IA demorou mais do que o limite e o processo foi "
+                        "interrompido.\n\nIsso acontece em computador mais lento com "
+                        "pregação longa. A transcrição não se perdeu — ela está no "
+                        "botão Ver transcrição.")
         else:
-            amigavel = f"Deu erro no processo:\n\n{texto}"
+            amigavel = f"Deu erro no processo:\n\n{type(erro).__name__}: {erro}"
+
+        if registro:
+            amigavel += f"\n\nDetalhes técnicos foram salvos em:\n{registro}"
 
         self.status.set("Não deu certo — veja a mensagem.")
         messagebox.showerror("Erro", amigavel)
-        # empacotado como app de janela (--windowed) o stderr não existe
         if sys.stderr is not None:
             print(detalhe, file=sys.stderr)
 

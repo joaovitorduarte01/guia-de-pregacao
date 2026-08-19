@@ -81,8 +81,37 @@ python app_desktop.py
 Escolha o áudio, preencha quem pregou e a data, clique em **Gerar o guia em
 PDF**. Os arquivos saem em `Documentos\Guias de Pregação`.
 
-Uma pregação de ~50 min leva de 5 a 15 minutos em máquina sem placa de vídeo.
 A janela continua respondendo — o trabalho roda em outra thread.
+
+### Quanto tempo leva de verdade
+
+Medido em um i5-1235U com 8 GB de RAM, sem placa de vídeo, gerando a 2,7
+tokens por segundo:
+
+| Duração da pregação | Transcrição | IA | Total aproximado |
+|---|---|---|---|
+| 15 min | 5-8 min | 12-18 min | **20-25 min** |
+| 30 min | 10-15 min | 25-35 min | **40-50 min** |
+| 50 min | 15-25 min | 45-70 min | **1h a 1h30** |
+
+**Fechar o navegador antes de gerar faz muita diferença.** O modelo tem 2,6 GB
+e precisa caber na memória; com o Chrome ou o Firefox abertos, o Windows fica
+trocando dados com o disco e a velocidade despenca. Em máquina com 16 GB ou
+com placa de vídeo dedicada, esses tempos caem para uma fração.
+
+O melhor uso é começar e ir fazer outra coisa — não é para ficar olhando.
+
+## Como a pregação é lida
+
+O modelo enxerga 4096 tokens por vez — cerca de 20 minutos de fala. Uma
+pregação inteira não cabe, e **o Ollama descarta o excedente sem avisar**: o
+guia sairia completo e bem formatado, mas baseado só num pedaço do que foi
+pregado.
+
+Por isso o `gerar_conteudo.py` divide a transcrição em partes de ~8.000
+caracteres, cortando em fim de frase, resume cada uma e monta o guia final a
+partir dos resumos juntos. A pregação inteira entra, e o contexto menor ainda
+pesa menos na memória.
 
 ## Escolhendo os modelos conforme a máquina
 

@@ -21,8 +21,8 @@
         font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
         color: #23262B;
         margin: 0;
-        font-size: 11pt;
-        line-height: 1.55;
+        font-size: 10.5pt;
+        line-height: 1.45;
     }
 
     .capa {
@@ -59,7 +59,7 @@
         color: {{ cor_primaria }};
         text-transform: uppercase;
         letter-spacing: 1.2px;
-        margin: 28px 0 12px 0;
+        margin: 22px 0 10px 0;
         break-after: avoid;
         page-break-after: avoid;
     }
@@ -76,7 +76,7 @@
 
     .passo {
         display: block;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
         padding-left: 46px;
         position: relative;
         min-height: 34px;
@@ -112,7 +112,9 @@
         padding: 1px 6px;
         border-radius: 3px;
         font-size: 9.5pt;
-        word-break: break-all;
+        /* sem break-all aqui: ele partia "Pregação" no meio da palavra.
+           A quebra agressiva fica só na .link, que tem a URL longa. */
+        white-space: nowrap;
     }
 
     .link {
@@ -132,7 +134,7 @@
         background: #FFF6E6;
         border-left: 3px solid #E0A83C;
         padding: 13px 16px;
-        margin: 12px 0;
+        margin: 10px 0;
         break-inside: avoid;
         page-break-inside: avoid;
     }
@@ -147,7 +149,7 @@
         background: {{ cor_secundaria }};
         border-left: 3px solid {{ cor_primaria }};
         padding: 13px 16px;
-        margin: 12px 0;
+        margin: 10px 0;
         break-inside: avoid;
         page-break-inside: avoid;
     }
@@ -158,7 +160,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 10pt;
+        font-size: 9.5pt;
         margin-top: 4px;
     }
     th {
@@ -317,9 +319,23 @@
                 Grave a pregação no celular e passe o arquivo para o computador.
                 No programa: escolha o áudio, escreva quem pregou, confira a data
                 e clique em <strong>Gerar o guia em PDF</strong>.
-                Uma pregação de 50 minutos leva de 5 a 15 minutos para ficar pronta.
                 O PDF é salvo em <span class="caminho">Documentos\Guias de Pregação</span>.
             </div>
+        </div>
+
+        <div class="nota">
+            <p>
+                <strong>Isso demora — e é normal.</strong> Em um computador comum,
+                sem placa de vídeo dedicada, uma pregação de 30 minutos leva de
+                40 a 50 minutos para virar PDF, e uma de 50 minutos pode passar
+                de uma hora. Comece e vá fazer outra coisa; não precisa ficar
+                olhando a tela.
+            </p>
+            <p style="margin-top: 8px">
+                <strong>Feche o navegador antes de começar.</strong> Faz muita
+                diferença: a inteligência artificial precisa de bastante memória,
+                e com o Chrome aberto o computador fica bem mais lento.
+            </p>
         </div>
 
         <div class="aviso">
