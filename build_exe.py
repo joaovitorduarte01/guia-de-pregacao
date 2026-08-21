@@ -58,6 +58,22 @@ EXCLUIR = [
 ]
 
 
+def app_aberto() -> bool:
+    """
+    O .exe está em uso? No Windows um arquivo em execução não pode ser
+    renomeado — é o teste mais direto, e não depende de biblioteca nenhuma.
+    """
+    exe = os.path.join(AQUI, "dist", NOME, f"{NOME}.exe")
+    if not os.path.isfile(exe):
+        return False
+    try:
+        os.rename(exe, exe + ".emuso")
+        os.rename(exe + ".emuso", exe)
+        return False
+    except OSError:
+        return True
+
+
 def main():
     try:
         import PyInstaller  # noqa: F401
@@ -66,11 +82,25 @@ def main():
               f"{sys.executable} -m pip install pyinstaller\n")
         return 1
 
+    # Já aconteceu de reconstruir com o aplicativo aberto: o rmtree apaga o que
+    # consegue, esbarra nos arquivos travados, e com ignore_errors nem reclama.
+    # O programa fica aberto na tela da pessoa apontando pra uma pasta que não
+    # existe mais. Melhor parar aqui.
+    if app_aberto():
+        print(f'O "{NOME}" está aberto. Feche a janela dele antes de '
+              "reconstruir,\nsenão a instalação atual é destruída pela metade.")
+        return 1
+
     for pasta in ("build", "dist"):
         caminho = os.path.join(AQUI, pasta)
         if os.path.isdir(caminho):
             print(f"limpando {pasta}/ ...")
-            shutil.rmtree(caminho, ignore_errors=True)
+            try:
+                shutil.rmtree(caminho)
+            except OSError as erro:
+                # sem ignore_errors: apagar pela metade é pior que não apagar
+                print(f"não deu pra limpar {pasta}/: {erro}")
+                return 1
 
     comando = [
         sys.executable, "-m", "PyInstaller",

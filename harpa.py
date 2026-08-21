@@ -131,7 +131,7 @@ def _pontuar(hino: dict, texto: str) -> int:
 def _comentario_padrao(hino: dict) -> str:
     temas = [t for t in hino["temas"][:3] if " " not in t] or list(hino["temas"][:2])
     assunto = " e ".join(temas[:2])
-    return (f"Fala de {assunto} e conversa direto com a mensagem. "
+    return (f"Fala de {assunto} — combina com o que foi pregado. "
             "Boa opção para cantar em família antes de começar o estudo.")
 
 

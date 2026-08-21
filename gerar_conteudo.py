@@ -59,7 +59,7 @@ estrutura em JSON (responda SOMENTE o JSON, sem markdown, sem texto antes ou dep
   "perguntas_aprofundamento": [
     "uma pergunta que leve a família a aprofundar e praticar a mensagem, escrita por extenso"
   ],
-  "oracao_final": "um parágrafo de oração relacionado ao tema, em primeira pessoa do plural (nós)",
+  "oracao_final": "oração de 3 a 5 frases relacionada ao tema, em primeira pessoa do plural (nós)",
   "hino_sugerido": {
     "titulo": "título de um hino da Harpa Cristã que combine com o tema",
     "comentario": "uma ou duas frases relacionando o hino ao tema"
@@ -83,6 +83,8 @@ Regras importantes:
 - PERGUNTAS: são de aprofundamento e prática espiritual. Devem levar a família
   a examinar a própria vida e a decidir um passo concreto, não a repetir o que
   ouviu. Escreva por extenso, sem numerar ("Pergunta 1:" está errado).
+- ORAÇÃO: escreva a oração de verdade, falando com Deus, de 3 a 5 frases.
+  Uma frase só ("vamos orar") não serve.
 - HINO: sempre preencha, com um hino da Harpa Cristã. Nunca deixe null.
 - Escreva em tom pastoral, caloroso e aplicável à vida real da família.
 """

@@ -461,6 +461,10 @@ class Aplicativo(tk.Tk):
 
     def _revisao_confirmada(self, dados):
         self.dados = dados
+        # o nome do arquivo acompanha o pregador que ficou no guia, senão o PDF
+        # sai com um nome e outro nome impresso dentro
+        if dados.get("pregador"):
+            self.pregador_atual = dados["pregador"]
         self._montar_pdf(dados)
 
     def _revisao_cancelada(self):
