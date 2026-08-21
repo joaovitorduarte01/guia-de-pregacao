@@ -38,9 +38,11 @@ IMPORTS_OCULTOS = [
     # ficam listados aqui pra garantir que entrem no pacote
     "instalador",
     "tela_preparo",
+    "tela_revisao",
     "tema",
     "transcrever",
     "gerar_conteudo",
+    "harpa",
     "gerar_pdf",
     "motor_pdf",
 ]

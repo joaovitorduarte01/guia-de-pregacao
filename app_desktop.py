@@ -5,8 +5,9 @@ Interface nativa em tkinter (já vem com o Python, não instala nada) no lugar d
 Streamlit. Rode com:  python app_desktop.py
 
 O trabalho pesado roda numa thread separada e conversa com a interface por uma
-fila — se rodasse na thread da interface, a janela congelaria durante os 5 a 15
-minutos de transcrição e o Windows mostraria "não está respondendo".
+fila — se rodasse na thread da interface, a janela congelaria durante a
+transcrição, que leva dezenas de minutos, e o Windows mostraria
+"não está respondendo".
 """
 
 import os
@@ -74,8 +75,10 @@ class Aplicativo(tk.Tk):
         super().__init__()
 
         self.title("Guia de Pregação")
-        self.geometry("780x760")
-        self.minsize(720, 700)
+        # o layout pede 715px de altura; a janela precisa de folga acima disso
+        # para caber a barra de progresso e a caixa de resultado sem cortar
+        self.geometry("780x850")
+        self.minsize(720, 800)
         self.configure(bg=tema.FUNDO)
 
         self.p = tema.aplicar_estilos(self)
@@ -93,6 +96,11 @@ class Aplicativo(tk.Tk):
         self.fila = queue.Queue()
         self.trabalhando = False
         self.transcricao = ""
+        # o que a IA escreveu, guardado pra poder revisar e gerar de novo sem
+        # ter que transcrever tudo outra vez
+        self.dados = None
+        self.pregador_atual = ""
+        self.data_atual = None
 
         self._montar_interface()
         self.after(100, self._processar_fila)
@@ -306,11 +314,12 @@ class Aplicativo(tk.Tk):
         self.trabalhando = True
         self.botao.habilitar(False, "Gerando...")
         self.barra["value"] = 0
+        self.pregador_atual = self.pregador.get().strip()
+        self.data_atual = data
 
         threading.Thread(
             target=self._pipeline,
-            args=(audio, self.pregador.get().strip(), data,
-                  self.passagem.get().strip()),
+            args=(audio, self.pregador_atual, data, self.passagem.get().strip()),
             daemon=True,
         ).start()
 
@@ -323,7 +332,6 @@ class Aplicativo(tk.Tk):
             # segundos e travaria a abertura da janela se fosse no topo
             from transcrever import transcrever_audio
             from gerar_conteudo import gerar_guia
-            from gerar_pdf import gerar_pdf
 
             self.fila.put(("status", (2, "Carregando o modelo de transcrição... "
                                          "(na primeira vez ele baixa, pode demorar)")))
@@ -351,16 +359,30 @@ class Aplicativo(tk.Tk):
             dados = gerar_guia(texto, pregador=pregador, data=formatar_data(data),
                                progresso=progresso_ia, passagem=passagem)
 
-            self.fila.put(("status", (90, "Montando o PDF...")))
-            pasta = pasta_de_saida()
-            os.makedirs(pasta, exist_ok=True)
-            nome = f"{data.isoformat()}-{pregador.replace(' ', '_')}.pdf"
-            caminho = gerar_pdf(dados, os.path.join(pasta, nome))
-
-            self.fila.put(("pronto", caminho))
+            # O PDF não sai direto: primeiro a pessoa revisa o texto. A IA erra,
+            # e o que sai daqui vai impresso e entregue às famílias.
+            self.fila.put(("revisar", dados))
 
         except Exception as e:
             self.fila.put(("erro", (e, traceback.format_exc())))
+
+    def _montar_pdf(self, dados):
+        """Só a parte do PDF, separada porque pode ser refeita depois de editar."""
+        def trabalho():
+            try:
+                from gerar_pdf import gerar_pdf
+
+                self.fila.put(("status", (94, "Montando o PDF...")))
+                pasta = pasta_de_saida()
+                os.makedirs(pasta, exist_ok=True)
+                nome = (f"{self.data_atual.isoformat()}-"
+                        f"{self.pregador_atual.replace(' ', '_')}.pdf")
+                caminho = gerar_pdf(dados, os.path.join(pasta, nome))
+                self.fila.put(("pronto", caminho))
+            except Exception as e:
+                self.fila.put(("erro", (e, traceback.format_exc())))
+
+        threading.Thread(target=trabalho, daemon=True).start()
 
     # ------------------------------------------------- ponte thread → interface
 
@@ -379,6 +401,9 @@ class Aplicativo(tk.Tk):
 
                 elif tipo == "diagnostico":
                     self._mostrar_diagnostico(carga)
+
+                elif tipo == "revisar":
+                    self._abrir_revisao(carga)
 
                 elif tipo == "pronto":
                     self._concluir(carga)
@@ -413,11 +438,63 @@ class Aplicativo(tk.Tk):
         self.aviso_texto.config(text=texto)
         self.aviso.pack(fill="x", pady=(0, 16), before=self.cartao)
 
+    # ---------------------------------------------------------------- revisão
+
+    def _abrir_revisao(self, dados=None):
+        """Última parada antes do papel: tudo editável, nada chama a IA de novo."""
+        import tela_revisao
+
+        if dados is not None:
+            self.dados = dados
+        if not self.dados:
+            return
+
+        self.trabalhando = True
+        self.botao.habilitar(False, "Revisando...")
+        self.barra["value"] = 92
+        self.status.set("Confira o texto e corrija o que precisar.")
+
+        tela_revisao.TelaRevisao(
+            self, self.dados, self._revisao_confirmada,
+            transcricao=self.transcricao, ao_cancelar=self._revisao_cancelada,
+        )
+
+    def _revisao_confirmada(self, dados):
+        self.dados = dados
+        self._montar_pdf(dados)
+
+    def _revisao_cancelada(self):
+        """O texto continua na memória — cancelar não pode jogar fora o trabalho."""
+        self.trabalhando = False
+        self.botao.habilitar(True, "Gerar o guia em PDF")
+        self.barra["value"] = 0
+        self.status.set("Revisão cancelada. O texto foi guardado.")
+        self._painel_retomar()
+
+    def _painel_retomar(self):
+        for w in self.area_resultado.winfo_children():
+            w.destroy()
+        painel = tk.Frame(self.area_resultado, bg=tema.CARTAO,
+                          highlightbackground=tema.BORDA, highlightthickness=1)
+        painel.pack(fill="x")
+        dentro = tk.Frame(painel, bg=tema.CARTAO, padx=18, pady=14)
+        dentro.pack(fill="x")
+        tk.Label(dentro, text="O texto da pregação continua aqui", bg=tema.CARTAO,
+                 fg=tema.TEXTO, font=(tema.FONTE, 10, "bold")).pack(anchor="w")
+        tk.Label(dentro, bg=tema.CARTAO, fg=tema.TEXTO_FRACO, font=(tema.FONTE, 8),
+                 text="Não precisa transcrever de novo.").pack(anchor="w",
+                                                               pady=(1, 10))
+        ttk.Button(dentro, text="Voltar para a revisão", style="Secundario.TButton",
+                   command=lambda: self._abrir_revisao()).pack(anchor="w")
+
     def _concluir(self, caminho):
         self.trabalhando = False
         self.barra["value"] = 100
         self.botao.habilitar(True, "Gerar o guia em PDF")
         self.status.set("Pronto!")
+
+        for w in self.area_resultado.winfo_children():
+            w.destroy()
 
         painel = tk.Frame(self.area_resultado, bg=tema.CARTAO,
                           highlightbackground=tema.BORDA, highlightthickness=1)
@@ -438,8 +515,13 @@ class Aplicativo(tk.Tk):
         ttk.Button(botoes, text="Abrir a pasta", style="Secundario.TButton",
                    command=lambda: abrir_no_sistema(os.path.dirname(caminho))
                    ).pack(side="left", padx=8)
+        # achou um erro depois de imprimir? corrige e gera de novo em segundos,
+        # sem repetir a transcrição nem a IA
+        ttk.Button(botoes, text="Corrigir e gerar de novo",
+                   style="Secundario.TButton",
+                   command=lambda: self._abrir_revisao()).pack(side="left")
         ttk.Button(botoes, text="Ver transcrição", style="Secundario.TButton",
-                   command=self._mostrar_transcricao).pack(side="left")
+                   command=self._mostrar_transcricao).pack(side="left", padx=8)
 
     def _registrar_erro(self, detalhe: str) -> str:
         """

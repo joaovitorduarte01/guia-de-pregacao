@@ -118,8 +118,14 @@
         text-align: justify;
         hyphens: auto;
     }
+    .resumo p {
+        margin: 0 0 9px 0;
+    }
+    .resumo p:last-child {
+        margin-bottom: 0;
+    }
 
-    /* ---- pontos de aplicação */
+    /* ---- pontos de aprofundamento */
 
     .ponto {
         background: {{ cor_secundaria }};
@@ -248,19 +254,28 @@
     <div class="conteudo">
 
         <div class="secao-titulo">Resumo da Mensagem</div>
-        <div class="resumo">{{ resumo_mensagem }}</div>
+        <div class="resumo">
+            {# o resumo vem como lista de parágrafos; string antiga ainda funciona #}
+            {% if resumo_mensagem is string %}
+            <p>{{ resumo_mensagem }}</p>
+            {% else %}
+            {% for paragrafo in resumo_mensagem %}{% if paragrafo %}
+            <p>{{ paragrafo }}</p>
+            {% endif %}{% endfor %}
+            {% endif %}
+        </div>
 
-        <div class="secao-titulo">Pontos de Aplicação Familiar</div>
-        {% for ponto in pontos_aplicacao %}
+        <div class="secao-titulo">Pontos de Aprofundamento Bíblico</div>
+        {% for ponto in pontos_aprofundamento %}
         <div class="ponto">
             <div class="titulo-ponto"><span class="numero">{{ loop.index }}</span>{{ ponto.titulo }}</div>
             <div class="texto-ponto">{{ ponto.texto }}</div>
         </div>
         {% endfor %}
 
-        <div class="secao-titulo">Perguntas para Discussão em Família</div>
+        <div class="secao-titulo">Perguntas de Aprofundamento</div>
         <ol class="perguntas">
-            {% for pergunta in perguntas_discussao %}
+            {% for pergunta in perguntas_aprofundamento %}
             <li>{{ pergunta }}</li>
             {% endfor %}
         </ol>

@@ -16,6 +16,9 @@ há custo por uso — nem API paga, nem assinatura, nem limite.
         │
         ▼
   gerar_conteudo.py   → Ollama organiza no formato do guia (JSON)
+        │  └── harpa.py     → confere o hino da Harpa Cristã
+        ▼
+  tela_revisao.py     → a pessoa lê e corrige o que a IA escreveu
         │
         ▼
   gerar_pdf.py        → aplica o template e exporta
@@ -23,6 +26,21 @@ há custo por uso — nem API paga, nem assinatura, nem limite.
         ▼
   app_desktop.py      → a janela que a pessoa usa
 ```
+
+## O que sai no guia
+
+| Seção | O que é |
+|---|---|
+| Resumo da Mensagem | dois parágrafos |
+| Pontos de Aprofundamento Bíblico | sempre 3 |
+| Perguntas de Aprofundamento | sempre 3, de prática espiritual |
+| Oração Final | um parágrafo |
+| Hino Sugerido — Harpa Cristã | sempre preenchido |
+
+Esses "sempre" não são pedidos ao modelo e sim garantidos no código, em
+`gerar_conteudo._arrumar()`. Modelo pequeno esquece regra: quando faltar
+alguma seção, ele é chamado de novo só para aquele campo, e se ainda assim
+faltar, entra o plano B. O guia nunca sai com uma seção vazia.
 
 ## Instalação
 
@@ -101,6 +119,18 @@ com placa de vídeo dedicada, esses tempos caem para uma fração.
 
 O melhor uso é começar e ir fazer outra coisa — não é para ficar olhando.
 
+## Revisar antes de imprimir
+
+Terminada a IA, **antes** de virar PDF, abre a tela *Revise antes de imprimir*
+com tudo editável: tema, referência, os dois parágrafos do resumo, os três
+pontos, as três perguntas, a oração e o hino. Nada ali chama a IA de novo — é
+só edição, e o PDF sai em segundos depois de confirmar.
+
+Cancelar não joga o trabalho fora: o texto fica guardado e o botão *Voltar
+para a revisão* reabre a tela. Depois do PDF pronto existe o *Corrigir e gerar
+de novo*, que refaz o arquivo sem repetir a transcrição nem a IA — achou o erro
+depois de imprimir, corrige em meio minuto.
+
 ## A passagem bíblica
 
 O campo **Passagem bíblica** na tela é opcional, mas vale preencher.
@@ -122,6 +152,20 @@ Por isso o `gerar_conteudo.py` divide a transcrição em partes de ~8.000
 caracteres, cortando em fim de frase, resume cada uma e monta o guia final a
 partir dos resumos juntos. A pregação inteira entra, e o contexto menor ainda
 pesa menos na memória.
+
+## O hino da Harpa Cristã
+
+O guia sempre fecha com um hino, e ele vem de `harpa.py` — uma lista de hinos
+conhecidos com as palavras-chave de cada um. O modelo sugere, e `harpa.escolher()`
+confere: se o título não for de um hino conhecido, a escolha é refeita aqui,
+casando o tema da pregação com as palavras-chave.
+
+**O número sugerido pelo modelo é sempre descartado.** Modelo de linguagem
+inventa número de hino com uma segurança impressionante, e número errado só
+aparece na hora do culto, com a família procurando a página. Só sai impresso o
+que estiver no dicionário `NUMEROS`, que vem vazio — preencha com a numeração
+da Harpa que a sua igreja usa e os números passam a aparecer. Sem isso o guia
+mostra só o título, que é o que a maioria procura no índice mesmo.
 
 ## Escolhendo os modelos conforme a máquina
 
@@ -222,6 +266,8 @@ python transcrever.py audios/exemplo.mp3   # só a transcrição
 python gerar_pdf.py                        # só o PDF, com dados de exemplo
 python gerar_conteudo.py                   # só a IA (precisa do Ollama de pé)
 python instalador.py                       # o que está pronto e o que falta
+python harpa.py                            # que hino cai em cada tema
+python tela_revisao.py                     # só a tela de revisão
 ```
 
 ## Estrutura
@@ -234,7 +280,9 @@ pregacao-pdf/
 ├── tela_preparo.py    → tela de primeira execução
 ├── config.py          → padrões da igreja e dos modelos
 ├── transcrever.py     → áudio → texto
-├── gerar_conteudo.py  → texto → JSON estruturado
+├── gerar_conteudo.py  → texto → JSON estruturado (e confere o resultado)
+├── harpa.py           → hinos da Harpa Cristã e a escolha por tema
+├── tela_revisao.py    → revisão do texto antes de gerar o PDF
 ├── gerar_pdf.py       → JSON → PDF
 ├── motor_pdf.py       → HTML → PDF (Edge ou weasyprint)
 ├── build_exe.py       → empacota o aplicativo

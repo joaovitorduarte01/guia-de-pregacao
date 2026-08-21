@@ -8,6 +8,7 @@ import sys
 from jinja2 import Environment, FileSystemLoader
 
 import config
+import harpa
 import motor_pdf
 
 
@@ -45,13 +46,15 @@ if __name__ == "__main__":
         "passagem_biblica": "Lucas 21:34-36",
         "pregador": "Pr. Exemplo",
         "data": "16 de agosto de 2026",
-        "resumo_mensagem": (
+        "resumo_mensagem": [
             "Em Lucas 21:34-36, Jesus adverte seus discípulos para que cuidemos do "
             "coração, para que ele não fique sobrecarregado pela correria e pelas "
-            "preocupações deste mundo. Nossa esperança não está na política, na "
-            "economia ou na tecnologia; nossa esperança tem um nome, e esse nome é Jesus."
-        ),
-        "pontos_aplicacao": [
+            "preocupações deste mundo.",
+            "Nossa esperança não está na política, na economia ou na tecnologia; "
+            "nossa esperança tem um nome, e esse nome é Jesus. Vigiar não é viver "
+            "com medo, é viver acordado.",
+        ],
+        "pontos_aprofundamento": [
             {"titulo": "Proteja seu Lar da Correria",
              "texto": "É fácil deixar a agenda lotar até que o tempo com Deus desapareça. "
                        "Avalie a rotina da família e abra espaço para Ele."},
@@ -60,7 +63,7 @@ if __name__ == "__main__":
             {"titulo": "Não Deixe as Preocupações Tomarem seu Lugar",
              "texto": "Coloque o trabalho e as contas no lugar certo, debaixo do senhorio de Deus."},
         ],
-        "perguntas_discussao": [
+        "perguntas_aprofundamento": [
             "O que tem ocupado seu coração ultimamente, deixando pouco espaço para Jesus?",
             "Onde a correria tem empurrado o tempo com Deus para fora da rotina?",
             "O que a família pode fazer essa semana para vigiar e orar de forma ativa?",
@@ -69,11 +72,12 @@ if __name__ == "__main__":
             "Senhor, viemos diante de Ti como família, gratos porque nada Te pega de "
             "surpresa. Guarda nosso coração da correria e das distrações. Em nome de Jesus, amém."
         ),
-        "hino_sugerido": {
-            "numero": "98",
-            "titulo": "Estarás Vigiando?",
-            "comentario": "Convida cada crente a examinar o coração e considerar se está pronto para a volta de Cristo.",
-        },
+        # passa pelo harpa.py de propósito: é assim que o hino chega no guia de
+        # verdade, com o número em branco enquanto ninguém conferiu
+        "hino_sugerido": harpa.escolher(
+            tema="Vigiai e Orai",
+            resumo="Jesus adverte sobre a sua volta e pede vigilância à igreja.",
+        ),
     }
 
     caminho = gerar_pdf(dados_teste, "pdfs/exemplo.pdf")
