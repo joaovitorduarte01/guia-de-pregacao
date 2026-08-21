@@ -13,6 +13,7 @@ import tkinter as tk
 from tkinter import ttk
 
 import config
+import harpa
 import tema
 
 
@@ -197,18 +198,39 @@ class TelaRevisao(tk.Toplevel):
 
         hino = d.get("hino_sugerido") or {}
         self._secao("Hino da Harpa Cristã",
-                    "O número fica em branco quando não foi conferido — "
-                    "escreva o da Harpa da igreja se quiser que apareça no PDF.")
+                    f"Os {harpa.total()} hinos da Harpa estão aqui dentro. "
+                    "Trocou o número, o título vem junto.")
         self._rotulo("Número")
         self.var_hino_numero = self._campo(hino.get("numero"))
         self._rotulo("Título")
         self.var_hino_titulo = self._campo(hino.get("titulo"))
+        self.aviso_hino = tk.Label(self.form, bg=tema.FUNDO, fg=tema.TEXTO_FRACO,
+                                   font=(tema.FONTE, 8), anchor="w", text="")
+        self.aviso_hino.pack(fill="x", pady=(3, 0))
         self._rotulo("Comentário")
         self.caixa_hino = self._area(hino.get("comentario"), linhas=3)
+
+        # trocar o número preenche o título sozinho: ninguém tem que saber de
+        # cor qual hino é o 324, e digitar errado seria o mesmo erro que a
+        # gente tirou da IA
+        self.var_hino_numero.trace_add("write", self._numero_do_hino_mudou)
 
         tk.Frame(self.form, bg=tema.FUNDO, height=10).pack()
 
     # ---------------------------------------------------------------- ações
+
+    def _numero_do_hino_mudou(self, *_):
+        digitado = self.var_hino_numero.get().strip()
+        if not digitado:
+            self.aviso_hino.config(text="")
+            return
+        achado = harpa.por_numero(digitado)
+        if achado:
+            self.var_hino_titulo.set(achado["titulo"])
+            self.aviso_hino.config(text="")
+        else:
+            self.aviso_hino.config(
+                text=f"Não existe hino {digitado} na Harpa (vai de 1 a {harpa.total()}).")
 
     def _texto(self, caixa) -> str:
         return caixa.get("1.0", "end-1c").strip()

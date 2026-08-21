@@ -43,6 +43,7 @@ IMPORTS_OCULTOS = [
     "transcrever",
     "gerar_conteudo",
     "harpa",
+    "harpa_dados",
     "gerar_pdf",
     "motor_pdf",
 ]

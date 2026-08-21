@@ -73,10 +73,11 @@ if __name__ == "__main__":
             "surpresa. Guarda nosso coração da correria e das distrações. Em nome de Jesus, amém."
         ),
         # passa pelo harpa.py de propósito: é assim que o hino chega no guia de
-        # verdade, com o número em branco enquanto ninguém conferiu
+        # verdade, com número e título saídos da Harpa e não do modelo
         "hino_sugerido": harpa.escolher(
             tema="Vigiai e Orai",
-            resumo="Jesus adverte sobre a sua volta e pede vigilância à igreja.",
+            resumo="Jesus adverte sobre a sua volta, pede vigilância e fala do "
+                   "coração sobrecarregado pela correria e pelas preocupações.",
         ),
     }
 

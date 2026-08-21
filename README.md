@@ -155,17 +155,51 @@ pesa menos na memória.
 
 ## O hino da Harpa Cristã
 
-O guia sempre fecha com um hino, e ele vem de `harpa.py` — uma lista de hinos
-conhecidos com as palavras-chave de cada um. O modelo sugere, e `harpa.escolher()`
-confere: se o título não for de um hino conhecido, a escolha é refeita aqui,
-casando o tema da pregação com as palavras-chave.
+O guia sempre fecha com um hino, **com número e título**, sem ninguém ter que
+digitar nada. Os 640 hinos vivem em `harpa_dados.py`, gerado pelo
+`gerar_harpa.py` a partir de um levantamento público.
 
-**O número sugerido pelo modelo é sempre descartado.** Modelo de linguagem
-inventa número de hino com uma segurança impressionante, e número errado só
-aparece na hora do culto, com a família procurando a página. Só sai impresso o
-que estiver no dicionário `NUMEROS`, que vem vazio — preencha com a numeração
-da Harpa que a sua igreja usa e os números passam a aparecer. Sem isso o guia
-mostra só o título, que é o que a maioria procura no índice mesmo.
+**O número nunca vem do modelo de IA.** Ele inventa numeração com uma segurança
+impressionante, e número errado só aparece no meio do culto, com a família
+procurando a página. O que a IA sugere é o título; `harpa.buscar_titulo()`
+procura esse título entre os 640 — inteiro ou por aproximação, porque a IA
+escreve "O Melhor Amigo" para "Jesus, o Melhor Amigo" — e o número sai da base.
+
+Quando o título sugerido não existe na Harpa, a escolha é refeita comparando o
+tema e o resumo da pregação com **as palavras da letra de cada hino**. Uma
+mensagem sobre o filho pródigo cai em "Vem, ó Pródigo" porque a letra dele fala
+disso, não porque alguém rotulou o hino.
+
+Três coisas foram testadas e ficam registradas para ninguém refazer:
+
+- **Escrever a lista de cabeça não funciona.** A primeira versão tinha 23 hinos
+  "conhecidos"; quando a Harpa de verdade chegou, 15 dos 23 títulos não
+  existiam. "Rude Cruz" nunca esteve na Harpa, e "Chuvas de Bênçãos" na verdade
+  é "Chuvas de Graça", o hino nº 1.
+- **Dar mais peso ao tema piora.** Parece óbvio que o título da pregação vale
+  mais que o resumo, mas título de pregação é poético e tem três palavras de
+  conteúdo. Com o tema pesando dez vezes, "O Perdão que Restaura" caía em
+  "Pronto a Salvar"; com os dois pesando igual, cai em "Vem, ó Pródigo".
+- **Jogar os pontos de aprofundamento na conta também piora.** Eles carregam as
+  ilustrações da pregação: o "soldado montando guarda na porta da cidade"
+  puxava o hino para *cidade* em vez de ansiedade.
+
+Na tela de revisão dá para trocar o hino: digitou o número, o título aparece
+sozinho, e número que não existe avisa na hora.
+
+### Refazer a base
+
+```bash
+python gerar_harpa.py
+```
+
+Baixa a fonte e regrava o `harpa_dados.py`. Só é preciso rodar se a base mudar
+— o arquivo é versionado e o programa não depende de internet para funcionar.
+
+Os dados foram conferidos contra duas outras fontes antes de entrar: na faixa
+1-400 bateram 303/303 com a terceira fonte, sem uma discordância. Uma das
+fontes tinha os hinos 335 a 355 deslocados em uma posição — colocava "Mui Perto
+Está o Dia" no 355, quando ele é o 335 — e perdeu por 2 a 1.
 
 ## Escolhendo os modelos conforme a máquina
 
@@ -281,7 +315,9 @@ pregacao-pdf/
 ├── config.py          → padrões da igreja e dos modelos
 ├── transcrever.py     → áudio → texto
 ├── gerar_conteudo.py  → texto → JSON estruturado (e confere o resultado)
-├── harpa.py           → hinos da Harpa Cristã e a escolha por tema
+├── harpa.py           → escolhe o hino da Harpa que combina com a pregação
+├── harpa_dados.py     → os 640 hinos (gerado, não editar à mão)
+├── gerar_harpa.py     → refaz o harpa_dados.py a partir da fonte
 ├── tela_revisao.py    → revisão do texto antes de gerar o PDF
 ├── gerar_pdf.py       → JSON → PDF
 ├── motor_pdf.py       → HTML → PDF (Edge ou weasyprint)

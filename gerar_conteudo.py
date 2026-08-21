@@ -85,7 +85,8 @@ Regras importantes:
   ouviu. Escreva por extenso, sem numerar ("Pergunta 1:" está errado).
 - ORAÇÃO: escreva a oração de verdade, falando com Deus, de 3 a 5 frases.
   Uma frase só ("vamos orar") não serve.
-- HINO: sempre preencha, com um hino da Harpa Cristã. Nunca deixe null.
+- HINO: escreva só o TÍTULO de um hino da Harpa Cristã que combine com a
+  mensagem. Não escreva número — o número é conferido depois, aqui do lado.
 - Escreva em tom pastoral, caloroso e aplicável à vida real da família.
 """
 
@@ -311,6 +312,10 @@ def _arrumar(dados: dict, material: str) -> dict:
         perguntas.append(reserva)
     dados["perguntas_aprofundamento"] = perguntas[:QUANTAS_PERGUNTAS]
 
+    # Só o tema e o resumo entram na escolha do hino. Jogar os pontos junto
+    # foi testado e piorou: eles carregam as ILUSTRAÇÕES da pregação, e o
+    # "soldado montando guarda na porta da cidade" puxava o hino para "cidade"
+    # em vez de ansiedade. O resumo é a mensagem destilada.
     dados["hino_sugerido"] = harpa.escolher(
         tema=dados.get("tema", ""),
         resumo=" ".join(dados["resumo_mensagem"]),
