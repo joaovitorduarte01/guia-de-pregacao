@@ -239,8 +239,16 @@ def iniciar_servidor(aviso) -> bool:
 
     aviso(None, "ligando o motor de IA...")
     # o serviço fica de pé sozinho depois disso; sem janela preta na tela
+    #
+    # cwd é obrigatório aqui: processo filho herda o diretório atual do pai, e
+    # o do aplicativo é a própria pasta de instalação. O Windows não deixa
+    # renomear nem apagar uma pasta que é o diretório atual de algum processo,
+    # então o Ollama de pé trancava a pasta do programa — quem quisesse mover
+    # ou desinstalar o aplicativo esbarrava num "arquivo em uso" sem entender
+    # de onde vinha.
     subprocess.Popen(
         [exe, "serve"],
+        cwd=os.path.expanduser("~"),
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )
